@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+
 typedef struct{
     int chave;
     char campos[50][50];
@@ -24,7 +25,8 @@ void quickSort_grande(Registro *array, int low, int high, long int *comp, long i
 int partition_grande(Registro *array, int low, int high, long int *comp, long int *desloc);
 void quickSort_pequeno(Registro_pequeno *array, int low, int high, long int *comp, long int *desloc);
 int partition_pequeno(Registro_pequeno *array, int low, int high, long int *comp, long int *desloc);
-void insertionSort(Registro arr[], int n, long int *comp, long int *desloc);
+void insertionSort_grande(Registro arr[], int n, long int *comp, long int *desloc);
+void insertionSort_pequeno(Registro_pequeno arr[], int n, long int *comp, long int *desloc);
 void shellSort(Registro arr[], int num, long int *comp, long int *desloc);
 void heapSort(Registro arr[], int n, long int *comp, long int *desloc);
 void mergeSort(Registro arr[], int l, int r, long int *comp, long int *desloc);
