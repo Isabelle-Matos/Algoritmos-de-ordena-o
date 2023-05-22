@@ -7,7 +7,8 @@
 //crescente e decrescente
 
 void gerar_vetor_reg_aleatorio(Registro *vetor, int tam){
-    
+    srand(time(NULL));
+
     for(int i=0; i<tam; i++){
         
         vetor[i].chave = rand();
@@ -31,6 +32,7 @@ void gerar_vetor_reg_decrescente(Registro *vetor, int tam){
 }
 
 void gerar_vetor_inteiros_rand(Registro_pequeno *vetor, int tam){
+    srand(time(NULL));
     for(int i=0; i<tam; i++){
         vetor[i].chave = rand();
     }
@@ -111,7 +113,7 @@ void selectionSort_regpequeno(Registro_pequeno arr[], int n, long int *comp, lon
 int partition_grande(Registro *array, int low, int high, long int *comp, long int *desloc){
 
     Registro pivot = array[high];
-    printf("%d\n", pivot.chave);
+    //printf("%d\n", pivot.chave);
     int i = (low - 1);
 
     for(int j = low; j < high; j++){
@@ -141,7 +143,7 @@ void quickSort_grande(Registro *array, int low, int high, long int *comp, long i
 
 int partition_pequeno(Registro_pequeno *array, int low, int high, long int *comp, long int *desloc){
     Registro_pequeno pivot = array[high];
-    printf("%d\n", pivot.chave);
+    //printf("%d\n", pivot.chave);
     int i = (low - 1);
 
     for(int j = low; j < high; j++){
@@ -166,23 +168,38 @@ void quickSort_pequeno(Registro_pequeno *array, int low, int high, long int *com
         quickSort_pequeno(array, pi + 1, high, comp, desloc);
     }
 }
-// // Insertion Sort 
+// Insertion Sort para registros grandes
 
-// void insertionSort(Registro arr[], int n, long int *comp, long int *desloc){
-//     Registro key;
-//     int j;
-//     for (int i = 1; i < n; i++) {
-//         key = arr[i];
-//         j = i - 1;
+void insertionSort_grande(Registro arr[], int n, long int *comp, long int *desloc){
+    Registro key;
+    int j;
+    for (int i = 1; i < n; i++) {
+        key = arr[i];
+        j = i - 1;
 
-//         while (j >= 0 && arr[j].chave > key.chave) {
-//             arr[j + 1] = arr[j];
-//             j--;
-//         }
-//         arr[j + 1] = key;
-//     }
-// }
+        while (j >= 0 && arr[j].chave > key.chave) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
 
+// insertion sort para registros pequenos
+void insertionSort_pequeno(Registro_pequeno arr[], int n, long int *comp, long int *desloc){
+    Registro_pequeno key;
+    int j;
+    for (int i = 1; i < n; i++) {
+        key = arr[i];
+        j = i - 1;
+
+        while (j >= 0 && arr[j].chave > key.chave) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
 // // shell Sort
 
 // void shellSort(Registro arr[], int num, long int *comp, long int *desloc){
