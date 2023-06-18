@@ -1,4 +1,14 @@
-Trabalho realizado durante a disciplina de algoritmos e estruturas de dados 2
+## Algoritmos de ordenação
+# Trabalho realizado durante a disciplina de algoritmos e estruturas de dados 2
+
+O objetivo do trabalho é avaliar o tempo de execução que os códigos dos algoritmos de ordenação levam para situações diversas. Para isso, foram-se utilizados 5 vetores de tamanhos 20, 500, 5000, 10000 e 100000 elementos, e para cada vetor há dois tipos de registros, pequenos e grandes. Esses contêm apenas uma chave inteira, já estes, além de possuir, também, uma chave inteira, integra 50 campos com strings de 50 caracteres, entretanto, não será necessário inicializar essas strings pois o intuito delas é apenas ocupar o espaço na memória para esse tipo de registro.
+Outrossim, para estimar o tempo de cada algoritmo, dividiu-se as situações em 3 tipos para cada vetor de entrada:
+
+<sup>
+Vetor ordenado aleatoriamente
+Vetor ordenado crescentemente
+Vetor ordenado decrescentemente
+</sup>
 
 Instruções para a compilação:
 
