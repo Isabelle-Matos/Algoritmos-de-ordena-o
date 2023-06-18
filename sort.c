@@ -1,303 +1,424 @@
 #include "sort.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-//O trabalho pede para ordenar os vetores de retgistro grande e pequeno da entrada de forma aleatória,
-//crescente e decrescente
 
-void gerar_vetor_reg_aleatorio(Registro *vetor, int tam){
-    srand(time(NULL));
+// ***********************************************************************************************
+// ************************************* Registros Pequenos **************************************
+// ***********************************************************************************************
 
-    for(int i=0; i<tam; i++){
-        
-        vetor[i].chave = rand();
-    }
-}
 
-void gerar_vetor_reg_crescente(Registro *vetor, int tam){
-   
-    for(int i=0; i<tam; i++){
-      
-        vetor[i].chave = i;
-    }
-}
-
-void gerar_vetor_reg_decrescente(Registro *vetor, int tam){
-
-    for(int i=tam-1; i>=0; i--){
-
-        vetor[i].chave = i;
-    }
-}
-
-void gerar_vetor_inteiros_rand(Registro_pequeno *vetor, int tam){
-    srand(time(NULL));
-    for(int i=0; i<tam; i++){
-        vetor[i].chave = rand();
-    }
-}
-
-void gerar_vetor_inteiros_crescente(Registro_pequeno *vetor, int tam){
-    for(int i=0; i<tam; i++){
-        vetor[i].chave = i;
-    }
-}
-
-void gerar_vetor_inteiros_decrescente(Registro_pequeno *vetor, int tam){
-    for(int i=tam-1; i>=0; i--){
-        vetor[i].chave = i;
-
-    }
-
-}
-
-void liberar_vetor(Registro *reg){
-    free(reg);
-}
-
-//essa função será usada no selection sort, quick sort, heap sort para registros grandes
-
-void swap_reggrande(Registro *a, Registro *b, long int *desloc){
-    Registro t = *a;
+void swap_p(Registro_p *a, Registro_p *b, long unsigned int *desloc){
+    Registro_p t = *a;
     *a = *b;
     *b = t;
-    (*desloc)++;
+    (*desloc) += 3;
 }
 
-//essa função será usada no selection sort, quick sort, heap sort para registros pequenos
+// ################################################################################################
+// #################################### Selection Sort ############################################
+// ################################################################################################
 
-void swap_regpequeno(Registro_pequeno *a, Registro_pequeno *b, long int *desloc){
-    Registro_pequeno t = *a;
-    *a = *b;
-    *b = t;
-    (*desloc)++;
-}
-
-// Selection Sort registros grandes 
-
-void selectionSort_regrande(Registro arr[], int n, long int *comp, long int *desloc){
+void selectionSort_p(Registro_p arr[], int n, long unsigned int *comp, long unsigned int *desloc){
     int i, j, min_idx;
 
     for (i = 0; i < n-1; i++){
         min_idx = i;
         for (j = i+1; j < n; j++){
+            // printf("ordenando: %d %d\n", arr[j].chave, arr[min_idx].chave);
             (*comp)++;
             if(arr[j].chave < arr[min_idx].chave){
                 min_idx = j;
             }
         }
-        swap_reggrande(&arr[min_idx], &arr[i], desloc);
+        swap_p(&arr[min_idx], &arr[i], desloc);
     }
 }
 
-// Selection Sort registros pequenos 
+// ################################################################################################
+// ###################################### QuickSort ###############################################
+// ################################################################################################
 
-void selectionSort_regpequeno(Registro_pequeno arr[], int n, long int *comp, long int *desloc){
+void particionar_p(long int esq, long int dir, long int *i, long int *j, Registro_p arr[], long unsigned int *comp, long unsigned int *desloc) {
+    Registro_p x, w;
+    *i = esq; *j = dir;
+    x = arr[(*i + *j) / 2];
+    /* obtem o pivo x */
+    do {
+        while (x.chave > arr[*i].chave){
+            (*comp)++;
+            (*i)++;
+        }
+        while (x.chave < arr[*j].chave){
+            (*comp)++;
+            (*j)--;
+        }
+        if (*i <= *j) {
+            (*desloc) += 3;
+            w = arr[*i]; 
+            arr[*i] = arr[*j]; 
+            arr[*j] = w;
+            (*i)++; (*j)--;
+        }
+    } while (*i <= *j);
+}
+
+void ordenar_p(long int esq, long int dir, Registro_p arr[], long unsigned int *comp, long unsigned int *desloc) {
+    long int i, j;
+    particionar_p(esq, dir, &i, &j, arr, comp, desloc);
+    if (esq < j) ordenar_p(esq, j, arr, comp, desloc);
+    if (i < dir) ordenar_p(i, dir, arr, comp, desloc);
+}
+
+void quickSort_p(Registro_p arr[], long int n, long unsigned int *comp, long unsigned int *desloc) {
+    ordenar_p(0, n-1, arr, comp, desloc);
+}
+
+// ####################################################################################################
+// ###################################### InsertionSort ###############################################
+// ####################################################################################################
+
+void insertionSort_p(Registro_p arr[], int n, long unsigned int *comp, long unsigned int *desloc){
+    Registro_p key;
+    int j;
+    for (int i = 1; i < n; i++) {
+        key = arr[i];
+        j = i - 1;
+        (*comp)++;
+        while (j >= 0 && arr[j].chave > key.chave) {
+            (*desloc)++;
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        // (*desloc)++;
+        arr[j + 1] = key;
+    }
+}
+
+// ################################################################################################
+// ####################################### Shell Sort #############################################
+// ################################################################################################
+
+void shellSort_p(Registro_p arr[], int num, long unsigned int *comp, long unsigned int *desloc){
+    int h = 1, i, j;
+    do h = h * 3 + 1; while (h < num);
+    h /= 3;
+    for (; h > 0; h /= 3) {
+        for (i = h; i < num; i++) {
+            for(j = i - h; j >= 0; j -= h) {
+                (*comp)++;
+                if (arr[j+h].chave >= arr[j].chave)
+                    break;
+                else {
+                    swap_p(&arr[j], &arr[j+h], desloc);
+                }
+            }
+        }
+    }
+}
+
+// ################################################################################################
+// ######################################## Heap Sort #############################################
+// ################################################################################################
+
+void heapify_p(Registro_p arr[], int n, int i, long unsigned int *comp, long unsigned int *desloc){
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    (*comp)++;
+    if (left < n && arr[left].chave > arr[largest].chave)
+        largest = left;
+    (*comp)++;
+    if (right < n && arr[right].chave > arr[largest].chave)
+        largest = right;
+    (*comp)++;
+    if (largest != i) {
+        swap_p(&arr[i], &arr[largest], desloc);
+        heapify_p(arr, n, largest, comp, desloc);
+    }
+}
+
+void heapSort_p(Registro_p arr[], int n, long unsigned int *comp, long unsigned int *desloc){
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify_p(arr, n, i, comp, desloc);
+
+    for (int i = n - 1; i >= 0; i--) {
+        swap_p(&arr[0], &arr[i], desloc);
+        heapify_p(arr, i, 0, comp, desloc);
+    }
+}
+
+// ################################################################################################
+// ###################################### Merge Sort ##############################################
+// ################################################################################################
+
+void merge_p(Registro_p arr[], int l, int m, int r, long unsigned int *comp, long unsigned int *desloc){
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    Registro_p *L = (Registro_p*)malloc(n1*sizeof(Registro_p));
+    Registro_p *R = (Registro_p*)malloc(n2*sizeof(Registro_p));
+
+    for (i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    i = 0;
+    j = 0;
+    k = l;
+
+    while (i < n1 && j < n2){
+        (*comp)++;
+        (*desloc)++;
+        if (L[i].chave <= R[j].chave){
+            arr[k] = L[i];
+            i++;
+        }
+        else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        (*desloc)++;
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        (*desloc)++;
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+    free(L);
+    free(R);
+}
+
+void mergeSort_p(Registro_p arr[], int l, int r, long unsigned int *comp, long unsigned int *desloc){
+    if (l < r) {
+        int m = l + (r - l) / 2;
+
+        mergeSort_p(arr, l, m, comp, desloc);
+        mergeSort_p(arr, m + 1, r, comp, desloc);
+        merge_p(arr, l, m, r, comp, desloc);
+    }
+}
+
+// ***********************************************************************************************
+// ************************************* Registros Grandes ***************************************
+// ***********************************************************************************************
+
+
+void swap_g(Registro_g *a, Registro_g *b, long unsigned int *desloc){
+    Registro_g t = *a;
+    *a = *b;
+    *b = t;
+    (*desloc) += 3;
+}
+
+// ################################################################################################
+// #################################### Selection Sort ############################################
+// ################################################################################################
+
+
+void selectionSort_g(Registro_g arr[], int n, long unsigned int *comp, long unsigned int *desloc){
     int i, j, min_idx;
 
     for (i = 0; i < n-1; i++){
         min_idx = i;
         for (j = i+1; j < n; j++){
+            // printf("ordenando: %d %d\n", arr[j].chave, arr[min_idx].chave);
             (*comp)++;
             if(arr[j].chave < arr[min_idx].chave){
                 min_idx = j;
             }
         }
-        swap_regpequeno(&arr[min_idx], &arr[i], desloc);
+        swap_g(&arr[min_idx], &arr[i], desloc);
     }
 }
 
-// QuickSort para registros grandes
+// ################################################################################################
+// ######################################## Quick Sort ############################################
+// ################################################################################################
 
-int partition_grande(Registro *array, int low, int high, long int *comp, long int *desloc){
-
-    Registro pivot = array[high];
-    //printf("%d\n", pivot.chave);
-    int i = (low - 1);
-
-    for(int j = low; j < high; j++){
-        (*comp)++;
-        if(array[j].chave <= pivot.chave) {
-            i++;
-            swap_reggrande(&array[i], &array[j], desloc);
+void particionar_g(long int esq, long int dir, long int *i, long int *j, Registro_g arr[], long unsigned int *comp, long unsigned int *desloc) {
+    Registro_g x, w;
+    *i = esq; *j = dir;
+    x = arr[(*i + *j) / 2];
+    /* obtem o pivo x */
+    do {
+        while (x.chave > arr[*i].chave){
+            (*comp)++;
+            (*i)++;
         }
-    }
-
-    swap_reggrande(&array[i + 1], &array[high], desloc);
-    return (i + 1);
-}
-
-void quickSort_grande(Registro *array, int low, int high, long int *comp, long int *desloc){
-    if (low < high) {
-
-        int pi = partition_grande(array, low, high, comp, desloc);
-
-        quickSort_grande(array, low, pi - 1, comp, desloc);
-
-        quickSort_grande(array, pi + 1, high, comp, desloc);
-    }
-}
-
-// Quicksort registros pequenos
-
-int partition_pequeno(Registro_pequeno *array, int low, int high, long int *comp, long int *desloc){
-    Registro_pequeno pivot = array[high];
-    //printf("%d\n", pivot.chave);
-    int i = (low - 1);
-
-    for(int j = low; j < high; j++){
-        (*comp)++;
-        if(array[j].chave <= pivot.chave) {
-            i++;
-            swap_regpequeno(&array[i], &array[j], desloc);
+        while (x.chave < arr[*j].chave){
+            (*comp)++;
+            (*j)--;
         }
-    }
-
-    swap_regpequeno(&array[i + 1], &array[high], desloc);
-    return (i + 1);
+        if (*i <= *j) {
+            (*desloc) += 3;
+            w = arr[*i]; 
+            arr[*i] = arr[*j]; 
+            arr[*j] = w;
+            (*i)++; (*j)--;
+        }
+    } while (*i <= *j);
 }
 
-void quickSort_pequeno(Registro_pequeno *array, int low, int high, long int *comp, long int *desloc){
-    if (low < high) {
-
-        int pi = partition_pequeno(array, low, high, comp, desloc);
-
-        quickSort_pequeno(array, low, pi - 1, comp, desloc);
-
-        quickSort_pequeno(array, pi + 1, high, comp, desloc);
-    }
+void ordenar_g(long int esq, long int dir, Registro_g arr[], long unsigned int *comp, long unsigned int *desloc) {
+    long int i, j;
+    particionar_g(esq, dir, &i, &j, arr, comp, desloc);
+    if (esq < j) ordenar_g(esq, j, arr, comp, desloc);
+    if (i < dir) ordenar_g(i, dir, arr, comp, desloc);
 }
-// Insertion Sort para registros grandes
 
-void insertionSort_grande(Registro arr[], int n, long int *comp, long int *desloc){
-    Registro key;
+void quickSort_g(Registro_g arr[], long int n, long unsigned int *comp, long unsigned int *desloc) {
+    ordenar_g(0, n-1, arr, comp, desloc);
+}
+
+
+// ################################################################################################
+// #################################### Insertion Sort ############################################
+// ################################################################################################
+
+
+void insertionSort_g(Registro_g arr[], int n, long unsigned int *comp, long unsigned int *desloc){
+    Registro_g key;
     int j;
     for (int i = 1; i < n; i++) {
         key = arr[i];
         j = i - 1;
-
+        (*comp)++;
         while (j >= 0 && arr[j].chave > key.chave) {
+            (*desloc)++;
             arr[j + 1] = arr[j];
             j--;
         }
+        // (*desloc)++;
         arr[j + 1] = key;
     }
 }
 
-// insertion sort para registros pequenos
-void insertionSort_pequeno(Registro_pequeno arr[], int n, long int *comp, long int *desloc){
-    Registro_pequeno key;
-    int j;
-    for (int i = 1; i < n; i++) {
-        key = arr[i];
-        j = i - 1;
 
-        while (j >= 0 && arr[j].chave > key.chave) {
-            arr[j + 1] = arr[j];
-            j--;
+// ################################################################################################
+// ###################################### Shell Sort ##############################################
+// ################################################################################################
+
+
+void shellSort_g(Registro_g arr[], int num, long unsigned int *comp, long unsigned int *desloc){
+    int h = 1, i, j;
+    Registro_g tmp;
+    do h = h * 3 + 1; while (h < num);
+    h /= 3;
+    for (; h > 0; h /= 3) {
+        for (i = h; i < num; i++) {
+            for(j = i - h; j >= 0; j -= h) {
+                (*comp)++;
+                if (arr[j+h].chave >= arr[j].chave)
+                    break;
+                else {
+                    swap_g(&arr[j], &arr[j+h], desloc);
+                }
+            }
         }
-        arr[j + 1] = key;
     }
 }
-// // shell Sort
 
-// void shellSort(Registro arr[], int num, long int *comp, long int *desloc){
-//     int i, j, k;
-//     Registro tmp;
-//     for (i = num / 2; i > 0; i /= 2) {
-//         for (j = i; j < num; j++) {
-//             for(k = j - i; k >= 0; k -= i) {
-//                 if (arr[k+i].chave >= arr[k].chave)
-//                     break;
-//                 else {
-//                     tmp = arr[k];
-//                     arr[k] = arr[k+i];
-//                     arr[k+i] = tmp;
-//                 }
-//             }
-//         }
-//     }
-// }
+// ################################################################################################
+// ###################################### Heap Sort ###############################################
+// ################################################################################################
 
-// // Heap Sort
+void heapify_g(Registro_g arr[], int n, int i, long unsigned int *comp, long unsigned int *desloc){
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    (*comp)++;
+    if (left < n && arr[left].chave > arr[largest].chave)
+        largest = left;
+    (*comp)++;
+    if (right < n && arr[right].chave > arr[largest].chave)
+        largest = right;
+    (*comp)++;
+    if (largest != i) {
+        swap_g(&arr[i], &arr[largest], desloc);
+        heapify_g(arr, n, largest, comp, desloc);
+    }
+}
 
-// void heapify(Registro arr[], int n, int i, long int *comp, long int *desloc){
-//     int largest = i;
-//     int left = 2 * i + 1;
-//     int right = 2 * i + 2;
+void heapSort_g(Registro_g arr[], int n, long unsigned int *comp, long unsigned int *desloc){
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify_g(arr, n, i, comp, desloc);
 
-//     if (left < n && arr[left].chave > arr[largest].chave)
-//         largest = left;
+    for (int i = n - 1; i >= 0; i--) {
+        swap_g(&arr[0], &arr[i], desloc);
+        heapify_g(arr, i, 0, comp, desloc);
+    }
+}
 
-//     if (right < n && arr[right].chave > arr[largest].chave)
-//         largest = right;
+// ################################################################################################
+// ######################################## Merge Sort ############################################
+// ################################################################################################
 
-//     if (largest != i) {
-//         swap(&arr[i], &arr[largest], desloc);
-//         heapify(arr, n, largest, comp, desloc);
-//     }
-// }
 
-// void heapSort(Registro arr[], int n, long int *comp, long int *desloc){
-//     for (int i = n / 2 - 1; i >= 0; i--)
-//         heapify(arr, n, i, comp, desloc);
+void merge_g(Registro_g arr[], int l, int m, int r, long unsigned int *comp, long unsigned int *desloc){
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 = r - m;
 
-//     for (int i = n - 1; i >= 0; i--) {
-//         swap(&arr[0], &arr[i], desloc);
-//         heapify(arr, i, 0, comp, desloc);
-//     }
-// }
+    Registro_g *L = (Registro_g*)malloc(n1*sizeof(Registro_g));
+    Registro_g *R = (Registro_g*)malloc(n2*sizeof(Registro_g));
 
-// // Merge Sort
+    for (i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
 
-// void merge(Registro arr[], int l, int m, int r, long int *comp, long int *desloc){
-//     int i, j, k;
-//     int n1 = m - l + 1;
-//     int n2 = r - m;
+    i = 0;
+    j = 0;
+    k = l;
 
-//     Registro L[n1], R[n2];
+    while (i < n1 && j < n2){
+        (*comp)++;
+        (*desloc)++;
+        if (L[i].chave <= R[j].chave){
+            arr[k] = L[i];
+            i++;
+        }
+        else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
 
-//     for (i = 0; i < n1; i++)
-//         L[i] = arr[l + i];
-//     for (j = 0; j < n2; j++)
-//         R[j] = arr[m + 1 + j];
+    while (i < n1) {
+        (*desloc)++;
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
 
-//     i = 0;
-//     j = 0;
-//     k = l;
+    while (j < n2) {
+        (*desloc)++;
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+    free(L);
+    free(R);
+}
 
-//     while (i < n1 && j < n2){
-//         if (L[i].chave <= R[j].chave){
-//             arr[k] = L[i];
-//             i++;
-//         }
-//         else {
-//             arr[k] = R[j];
-//             j++;
-//         }
-//         k++;
-//     }
+void mergeSort_g(Registro_g arr[], int l, int r, long unsigned int *comp, long unsigned int *desloc){
+    if (l < r) {
+        int m = l + (r - l) / 2;
 
-//     while (i < n1) {
-//         arr[k] = L[i];
-//         i++;
-//         k++;
-//     }
+        mergeSort_g(arr, l, m, comp, desloc);
+        mergeSort_g(arr, m + 1, r, comp, desloc);
+        merge_g(arr, l, m, r, comp, desloc);
+    }
+}
 
-//     while (j < n2) {
-//         arr[k] = R[j];
-//         j++;
-//         k++;
-//     }
-// }
-
-// void mergeSort(Registro arr[], int l, int r, long int *comp, long int *desloc){
-//     if (l < r) {
-//         int m = l + (r - l) / 2;
-
-//         mergeSort(arr, l, m, comp, desloc);
-//         mergeSort(arr, m + 1, r, comp, desloc);
-//         merge(arr, l, m, r, comp, desloc);
-//     }
-// }
