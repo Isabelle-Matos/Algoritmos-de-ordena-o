@@ -1,3 +1,5 @@
+Trabalho realizado durante a disciplina de algoritmos e estruturas de dados 2
+
 Instruções para a compilação:
 
 Após clonar, abra um terminal na pasta do projeto e digite o comando:
