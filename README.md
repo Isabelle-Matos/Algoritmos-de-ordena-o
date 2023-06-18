@@ -5,11 +5,11 @@ O objetivo do trabalho é avaliar o tempo de execução que os códigos dos algo
 Outrossim, para estimar o tempo de cada algoritmo, dividiu-se as situações em 3 tipos para cada vetor de entrada:
 
 
-** Vetor ordenado aleatoriamente ** 
+1. Vetor ordenado aleatoriamente 
 
-** Vetor ordenado crescentemente **
+2. Vetor ordenado crescentemente
 
-** Vetor ordenado decrescentemente **
+3. Vetor ordenado decrescentemente 
 
 
 Instruções para a compilação:
